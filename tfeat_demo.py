@@ -143,7 +143,7 @@ def compute_and_draw_homography(frame, img, good, kp1, kp2, descriptor):
         thickness = 1
         position  = (480, 90)
 
-    img2 = cv2.polylines(frame, [np.int32(dst)], True, colour, thickness, cv2.LINE_AA)
+    img2 = cv2.polylines(frame, [np.int32(dst)], True, colour, thickness, cv2.CV_AA)
     
     font = cv2.FONT_HERSHEY_SIMPLEX
     cv2.putText(img2, descriptor, position, font, 1, colour, 2)
@@ -169,14 +169,14 @@ def main(torch_file, video_file, object_img):
     # start opencv stuff
 
     cap = cv2.VideoCapture(video_file)
-    cap = cv2.VideoCapture(0)
+    #cap = cv2.VideoCapture(0)
 
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
-    out = cv2.VideoWriter('output.avi',fourcc, 10.0, (640,480))
+    fourcc = cv2.cv.CV_FOURCC(*'MJPG')
+    out = cv2.VideoWriter('output.avi',fourcc, 10.0, (1080,720))
 
     # initialise ORB detector
     n_kpts = 1000
-    det = cv2.ORB_create(n_kpts)
+    det = cv2.SURF()
 
     # initialise matcher
     bf = cv2.BFMatcher(cv2.NORM_L2, crossCheck=True)
@@ -192,13 +192,17 @@ def main(torch_file, video_file, object_img):
 
     # video loop
 
-    cv2.namedWindow("window", cv2.WND_PROP_FULLSCREEN)
-    cv2.setWindowProperty("window",cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
-
+    #cv2.namedWindow("window", cv2.WND_PROP_FULLSCREEN)
+    #cv2.setWindowProperty("window",cv2.WND_PROP_FULLSCREEN,cv2.WINDOW_FULLSCREEN)
+    print 'hi'
+    index = 1
     while(cap.isOpened()):
         # Capture frame-by-frame
         ret, frame = cap.read()
-
+        print index
+        index = index+1
+        if frame is None :
+            break;
         # Our operations on the frame come here
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -228,12 +232,12 @@ def main(torch_file, video_file, object_img):
         out.write(frame)
 
         # Display the resulting frame
-        cv2.imshow('window', frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        #cv2.imshow('window', frame)
+        #if cv2.waitKey(1) & 0xFF == ord('q'):
+        #    break
     
     # When everything done, release the capture
-    cv2.destroyAllWindows()
+    #cv2.destroyAllWindows()
 
 
 if __name__ == '__main__':
